@@ -16,7 +16,7 @@ stationary = ["ws", "is", "os"]
 config_override = configparser.ConfigParser()
 config_override.read("configs/google.cfg")
 
-run_dir = Path('runs_lab')
+run_dir = Path('runs_labA')
 run_top = Path('topologies_lab') / "partA.csv"
 run_layout = Path('layouts/conv_nets') / "test.csv"
 
