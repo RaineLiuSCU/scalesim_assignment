@@ -1,7 +1,7 @@
 import pandas as pd
 from math import ceil
 
-df = pd.read_csv('results_project.csv')
+df = pd.read_csv('results_project_scalesim.csv')
 df.reset_index()
 
 computeList = df['Total Cycles'].to_numpy().ravel()
@@ -31,14 +31,14 @@ index = 0
 for i in matrixSize:
     for j in panelSize:
         for k in isBaseline:
-            width = arrayWidthBaseline if k else arrayWidth
-            n = i if isBaseline else ceil(i/16)
+            P = 1 if k else 16
+            local_n = i // P
             panels = i // j
-            steps = panels + arrayWidth - 1 
+            steps = panels if k else panels + P - 1
 
             AReads = panels * (DRAM_alpha + i * j / bandwidth) # each panel is read only once
-            BReads = steps * DRAM_alpha + (width * panels) * (j * n) / bandwidth #each chiplet reads b x n/16 if is not baseline; each chiplet reads B (# panel) times
-            ringTransfer = (steps - 1) * (hopDelay + link_alpha + i * j / linkBandwidth)
+            BReads = steps * DRAM_alpha + P * panels * j * local_n / bandwidth
+            ringTransfer = 0 if k else (steps - 1) * (hopDelay + link_alpha + i * j / linkBandwidth)
             compute = steps * computeList[index]
             CWrite = DRAM_alpha + i ** 2 / bandwidth # C is written to DRAM at end of round
             cyclesPerGEMM = AReads + BReads + ringTransfer + compute + CWrite
