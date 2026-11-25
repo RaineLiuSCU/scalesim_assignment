@@ -3,7 +3,6 @@ from pathlib import Path
 import pandas as pd
 from math import ceil
 from scalesim import scale
-import csv
 
 arrayHeight = 64
 arrayWidth = 64
@@ -35,18 +34,24 @@ for i in matrixSize:
             path = name + ".csv"
 
             f = open(topologies / path, 'w')
-            writer = csv.writer(f)
-            writer.writerow(csv_header)
+            for i in csv_header:
+                f.write(i+",")
+            f.write("\n")
 
             layerName = 'gemm_' + name
             csv_row = [layerName, M, N, K,]
-            writer.writerow(csv_row)
+            for i in csv_row:
+                f.write(i + ",")
+            f.write("\n")
             f.close()
 
             config_override['architecture_presets'].update({"ArrayHeight": str(256 if k else 64), 
                                                         "ArrayWidth": str(256 if k else 64), 
                                                         "Dataflow": str('os'),
                                                         "Bandwidth": str(bandwidth),
+                                                        # "IfmapSramSzkB": str(3 * max(matrixSize) * max(panelSize)), # loose lower bound for sram size to fit all panels
+                                                        # "FilterSramSzkB": str(3 * max(matrixSize) * max(panelSize)),
+                                                        # "OfmapSramSzkB": str(3 * max(matrixSize) * max(panelSize))
                                                 })
             config_override['run_presets'].update({"InterfaceBandwidth": mode})
             config_override['general'].update({"run_name": name})
